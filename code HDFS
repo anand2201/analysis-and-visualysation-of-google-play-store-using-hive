@@ -1,0 +1,48 @@
+
+
+# Getting data from My sql into Hive using Sqoop;
+
+hduser@BigData:~$ sqoop import --connect jdbc:mysql://localhost/sw10 --username sw10 --password 10 --table apps6 -m1 --columns item_name,updated,author,downloads,version,content_rating,genre,price,rating_value,review_number,developer_badge --hive-import --hive-table appsSmallds5k
+
+# Splitting Downloads into Minimum and maximum columns;
+
+hduser@BigData:~$ hive -e "CREATE TABLE appsdata4 row format delimited fields terminated by ',' STORED AS RCFile AS select  item_name,updated,author,version,content_rating,genre,price,rating_value,review_number,developer_badge,split(downloads,'[-]')[0] as min_dwn,split(downloads,'[-]')[1] as max_dwn from appsSmallds5k"
+
+# Removing regular Expression ',' from Minimum Downloads; 
+hduser@BigData:~$ hive -e "select  item_name,updated,author,version,content_rating,genre,price,rating_value,review_number,developer_badge, regexp_replace(min_dwn,',','') from appsdata4"
+
+# Writing to the Local Directory
+
+hduser@BigData:~$ hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/sw10/Documents/gapps1' row format delimited fields terminated by ',' select  item_name,updated,author,version,content_rating,genre,price,rating_value,review_number,developer_badge, regexp_replace(min_dwn,',','') from appsdata4"
+
+
+Processing Data in HDFS using Hive
+
+Code:Count the Number of apps for each Rating value 
+
+hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/sw10/Documents/gapps1' row format delimited fields terminated by ',' select  rating_value, count(rating_value) from appsdata4 group by rating_value"
+
+
+Code: To get the Number of apps in each genre
+hive -e "select  genre,count(author) from appsdata4 group by count(author)"
+
+
+Code: To get the Item name and Genre that is higher in review number 
+ hive -e "SELECT item_name , genre FROM appsdata4 WHERE appsdata4.review_number IN (SELECT max(review_number) FROM appsdata4)"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

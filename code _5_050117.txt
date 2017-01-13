@@ -1,0 +1,55 @@
+create table newtable as select column1, column2, column3 from oldtable
+
+CREATE TABLE new_test row format delimited fields terminated by '|' STORED AS RCFile AS select * from source where col=1
+
+
+
+sqoop import --connect jdbc:mysql://localhost/sw10 --username sw10 --password 10 --table apps3 -m1 --columns item_name,rating_value --hive-import --hive-table gapps
+
+
+"CREATE TABLE gappsd1 row format delimited fields terminated by ',' STORED AS RCFile AS select  item_name, genre , rating_value,split(downloads,'[-]')[0] as min_dwn,split(downloads,'[-]')[1] as max_dwn from gapps6"
+
+hduser@BigData:~$ hive -e "select  item_name, genre , rating_value, regexp_replace(min_dwn,',','') from gappsd1"
+
+
+---------------------------------------------------------------------------------------------------------------
+#### Getting data from My sql into Hive using Sqoop;
+
+hduser@BigData:~$ sqoop import --connect jdbc:mysql://localhost/sw10 --username sw10 --password 10 --table apps6 -m1 --columns item_name,updated,author,downloads,version,content_rating,genre,price,rating_value,review_number,developer_badge --hive-import --hive-table appsSmallds5k
+
+#### Splitting Downloads into Minimum and maximum columns;
+
+hduser@BigData:~$ hive -e "CREATE TABLE appsSmallds5k1 row format delimited fields terminated by ',' STORED AS RCFile AS select  item_name,updated,author,version,content_rating,genre,price,rating_value,review_number,developer_badge,split(downloads,'[-]')[0] as min_dwn,split(downloads,'[-]')[1] as max_dwn from appsSmallds5k"
+
+#### Removing regular Expression ',' from Minimum Downloads; 
+hduser@BigData:~$ hive -e "select  item_name,updated,author,version,content_rating,genre,price,rating_value,review_number,developer_badge, regexp_replace(min_dwn,',','') from appsSmallds1"
+
+#### Writing to the Local Directory
+
+hduser@BigData:~$ hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/sw10/Documents/gapps1' row format delimited fields terminated by ',' select  item_name,updated,author,version,content_rating,genre,price,rating_value,review_number,developer_badge, regexp_replace(min_dwn,',','') from appsSmallds1"
+
+###########
+
+hduser@BigData:~$ hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/sw10/Documents/gapps1' row format delimited fields terminated by '|' select  regexp_replace(item_name,',',' '),updated,regexp_replace(author,',',' '),version,content_rating,genre,price,rating_value,review_number, regexp_replace(min_dwn,',',''),developer_badge from appsSmallds5k1"
+
+
+
+
+hduser@BigData:~$ hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/sw10/Documents/gapps1' row format delimited fields terminated by ',' select  item_name, genre, min_dwn, rating_value from appsdata1 where rating_value >= 4.0 and rating_value <=4.9"
+
+
+hduser@BigData:~$ hive -e "CREATE TABLE appsdata1 row format delimited fields terminated by ',' STORED AS RCFile AS select regexp_replace(item_name,',',' ') as item_name,updated,regexp_replace(author,',',' ') as author,version,content_rating,genre,price,rating_value,review_number, regexp_replace(min_dwn,',','') as min_dwn ,developer_badge from appsSmallds5k1"
+
+
+
+
+
+
+
+
+
+
+
+
+
+

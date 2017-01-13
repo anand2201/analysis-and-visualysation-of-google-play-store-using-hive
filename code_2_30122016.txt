@@ -1,0 +1,37 @@
+No 1
+----------------------------------------------------------------------------------------------------------------
+sqoop import --connect jdbc:mysql://localhost/sw10 --username sw10 --password 10 --table apps3 -m1 --columns item_name,rating_value --hive-import --hive-table gapps
+
+
+hduser@BigData:~$ hive -e 'ALTER TABLE gapps CHANGE  rating_value   rating_value FLOAT '
+
+ hive -e 'select  item_name, genre , rating_value from gapps where rating_value = 5.0'
+
+
+ hive -e 'select max(rating_value) from gapps'
+
+
+ hive -e 'SELECT item_name , genre FROM gapps WHERE gapps.rating_value IN (SELECT max(rating_value) FROM gapps)'
+
+hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/sw10/Documents/gapps1' row format delimited fields terminated by ',' SELECT item_name , genre FROM gapps WHERE gapps.rating_value IN (SELECT max(rating_value) FROM gapps)"
+
+
+cat /home/sw10/Documents/gapps1/000000_0 > /home/sw10/Documents/csv1.csv
+
+----------------------------------------------------------------------------------------------------------------
+No 2
+----------------------------------------------------------------------------------------------------------------
+SELECT rating_value,genre FROM gapps GROUP BY rating_value;
+
+????Question ::: 6.  Distribution of user ratings provided over Apps for Small dataset.
+
+hive -e 'SELECT rating_value, count(rating_value) FROM gapps GROUP BY rating_value'
+
+hduser@BigData:~$ hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/sw10/Documents/gapps1' row format delimited fields terminated by ',' SELECT rating_value, count(rating_value) FROM gapps GROUP BY rating_value"
+
+
+
+
+
+
+

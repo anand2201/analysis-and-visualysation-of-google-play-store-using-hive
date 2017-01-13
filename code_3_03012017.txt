@@ -1,0 +1,34 @@
+Q7
+----------------------------------------------------------------------------------------------------------------
+
+hduser@BigData:~$ sqoop import --connect jdbc:mysql://localhost/sw10 --username sw10 --password 10 --table apps3 -m1 --columns item_name,updated,downloads,content_rating,genre,rating_value,review_number --hive-import --hive-table gpapps2
+
+hduser@BigData:~$ hive -e 'ALTER TABLE gpapps2 CHANGE  rating_value   rating_value FLOAT '
+
+hduser@BigData:~$ hive -e 'ALTER TABLE gpapps2 CHANGE  review_number   review_number FLOAT '
+
+hduser@BigData:~$ hive -e 'SELECT genre, count(genre) FROM gpapps2 GROUP BY genre'
+
+
+hduser@BigData:~$ hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/sw10/Documents/gapps1' row format delimited fields terminated by ',' SELECT genre, count(genre) FROM gapps GROUP BY genre"
+
+cat /home/sw10/Documents/gapps1/000000_0 > /home/sw10/Documents/csvq7.csv
+
+
+hduser@BigData:~$ hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/sw10/Documents/gapps1' row format delimited fields terminated by ',' SELECT item_name,genre,review_number FROM gpapps4 ORDER BY item_name"
+
+
+
+hduser@BigData:~$ cat /home/sw10/Documents/gapps1/000000_0 > /home/sw10/Documents/csvq7_2org.csv
+
+
+hduser@BigData:~$ hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/sw10/Documents/gapps1' row format delimited fields terminated by ',' SELECT item_name,genre,review_number,downloads FROM gpapps4 ORDER BY item_name"
+
+hduser@BigData:~$ hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/sw10/Documents/gapps1' row format delimited fields terminated by ',' SELECT downloads, count(downloads) FROM gpapps2 GROUP BY downloads"
+
+hduser@BigData:~$ hive -e 'SELECT genre FROM gpapps4 WHERE downloads="1,000,000 - 5,000,000" ORDER BY genre'
+
+
+
+
+
